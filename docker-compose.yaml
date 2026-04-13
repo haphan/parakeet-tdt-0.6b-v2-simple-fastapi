@@ -1,0 +1,30 @@
+services:
+  parakeet:
+    container_name: parakeet
+    #image: us-central1-docker.pkg.dev/haph-dev/infra-ai/parakeet-stt-v2:latest
+    #entrypoint: /bin/bash
+    image: parakeet-simple:latest
+    #command: "/usr/bin/sleep 9999"
+    ports:
+      - "8000:8000"
+    environment:
+      LOG_LEVEL: INFO
+      MODEL_PATH: /model/parakeet-tdt-0.6b-v2.nemo
+      MODEL_PRECISION: fp16
+      DEVICE: cuda
+      BATCH_SIZE: 4
+      TARGET_SR: 16000
+      MAX_AUDIO_DURATION: 30
+      VAD_THRESHOLD: 0.5
+      PROCESSING_TIMEOUT: 60
+    volumes:
+      - ./data/cache:/root/.cache
+      - ./parakeet-tdt-0.6b-v2.nemo:/model/parakeet-tdt-0.6b-v2.nemo
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

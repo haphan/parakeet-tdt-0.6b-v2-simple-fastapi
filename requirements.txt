@@ -1,10 +1,10 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+fastapi
+uvicorn[standard]
 python-multipart==0.0.6
 pydantic==2.5.0
 torch>=2.0.0
-nemo-toolkit[asr]
+nemo-toolkit[asr,cu13]
 pydub==0.25.1
 numpy>=1.21.0
 requests>=2.25.0
-cuda-python>=12.3
+cuda-python>=13

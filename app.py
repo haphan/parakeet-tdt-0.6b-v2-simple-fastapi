@@ -1,4 +1,7 @@
 from nemo.collections.asr.models import ASRModel
+import logging
+import os
+import sys
 import torch
 import gc
 import shutil
@@ -17,6 +20,16 @@ import uvicorn
 # Configuration
 device = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_NAME = "nvidia/parakeet-tdt-0.6b-v2"
+MODEL_PATH = os.getenv("MODEL_PATH", "parakeet-tdt-0.6b-v2.nemo")
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format="%(asctime)s  %(levelname)-7s  %(name)s: %(message)s",
+    stream=sys.stdout,
+    force=True
+)
 
 # Global model instance
 model = None
@@ -25,7 +38,7 @@ def load_model():
     """Load the ASR model on startup"""
     global model
     try:
-        model = ASRModel.from_pretrained(model_name=MODEL_NAME)
+        model = ASRModel.restore_from(restore_path=MODEL_PATH, map_location=device)
         model.eval()
         print(f"Model {MODEL_NAME} loaded successfully on {device}")
     except Exception as e:
@@ -360,6 +373,4 @@ async def transcribe_to_srt(
         media_type="text/plain"
     )
 
-if __name__ == "__main__":
-    print("Starting Speech Transcription API...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
